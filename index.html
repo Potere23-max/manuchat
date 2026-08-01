@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pausa Caffè Chat ☕</title>
+    <link rel="manifest" href="/manifest.json" />
+
+    <meta name="theme-color" content="#7f5539" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  </head>
+  <body>
+    <script src="/app.js"></script>
+    <div id="toast" class="toast"></div>
+
+    <div class="card">
+      <h1>Pausa Caffè ☕</h1>
+
+      <div id="login">
+        <input
+          type="text"
+          id="username"
+          placeholder="Il tuo Nickname (es. Marco)"
+        />
+
+        <button style="width: 100%" onclick="mostraStanze()">Continua</button>
+      </div>
+
+      <div
+        id="stanze"
+        style="display: none; flex-direction: column; height: 100%"
+      >
+        <h3 style="margin: 0 0 10px 0">Stanza pubblica</h3>
+
+        <div id="lista-stanze"></div>
+
+        <hr style="width: 100%; margin: 18px 0" />
+
+        <h3 style="margin: 10px 0 5px 0">Stanze private</h3>
+
+        <div id="scelta-privata">
+          <button onclick="mostraCreaStanza()" style="width: 100%">
+            ➕ Crea stanza
+          </button>
+
+          <button onclick="mostraUniscitiStanza()" style="width: 100%">
+            🚪 Unisciti a stanza privata
+          </button>
+        </div>
+
+        <div id="crea-stanza-box" style="display: none">
+          <input
+            type="text"
+            id="room"
+            class="room-input"
+            placeholder="Nome stanza"
+          />
+
+          <input
+            type="password"
+            id="room-password"
+            class="room-input"
+            placeholder="Password (opzionale)"
+          />
+
+          <div class="room-buttons">
+            <button onclick="creaStanza()">Crea</button>
+
+            <button onclick="tornaSceltaPrivata()">Indietro</button>
+          </div>
+        </div>
+
+        <div id="unisciti-stanza-box" style="display: none">
+          <input
+            type="text"
+            id="join-room"
+            class="room-input"
+            placeholder="Nome stanza"
+          />
+
+          <input
+            type="password"
+            id="join-password"
+            class="room-input"
+            placeholder="Password (se presente)"
+          />
+
+          <div class="room-buttons">
+            <button onclick="uniscitiStanza()">Entra</button>
+
+            <button onclick="tornaSceltaPrivata()">Indietro</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="azione"
+        style="display: none; height: 100%; flex-direction: column"
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+          "
+        >
+          <div>
+            <h4 id="benvenuto" style="margin: 0"></h4>
+
+            <div
+              id="utenti-presenti"
+              onclick="apriUtenti()"
+              style="
+                font-size: 12px;
+                color: #7f5539;
+                margin-top: 5px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              👥 Mostra partecipanti
+            </div>
+
+            <div
+              id="lista-utenti-box"
+              style="
+                display: none;
+                position: absolute;
+                top: 55px;
+                left: 20px;
+                right: 20px;
+                z-index: 10;
+                padding: 12px;
+                background: white;
+                border-radius: 12px;
+                border: 1px solid #ddb892;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                font-size: 13px;
+                color: #4a3b32;
+              "
+            ></div>
+          </div>
+
+          <div>
+            <button
+              style="padding: 6px 10px; font-size: 12px"
+              onclick="chiediCaffe()"
+            >
+              📢 Notifica Caffè
+            </button>
+            <button
+              style="padding: 6px 10px; font-size: 12px"
+              onclick="mostraInvito()"
+            >
+              🔗 Invita
+            </button>
+
+            <button
+              style="padding: 6px 10px; font-size: 12px; background: #c1121f"
+              onclick="esciStanza()"
+            >
+              🚪 Esci
+            </button>
+          </div>
+        </div>
+
+        <div id="chat-box"></div>
+        <div
+          id="invito-box"
+          style="
+            display: none;
+            background: #fff8f0;
+            border: 1px solid #ddb892;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+          "
+        ></div>
+
+        <div>
+          <!-- Input nascosto per Fotocamera diretta -->
+          <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            style="display: none"
+            onchange="processaEInviaFoto(this)"
+          />
+
+          <!-- Input nascosto per Galleria -->
+          <input
+            type="file"
+            id="galleryInput"
+            accept="image/*"
+            style="display: none"
+            onchange="processaEInviaFoto(this)"
+          />
+
+          <div class="input-row">
+            <button
+              class="file-btn"
+              title="Scatta Foto"
+              onclick="document.getElementById('cameraInput').click()"
+            >
+              📷
+            </button>
+            <button
+              class="file-btn"
+              title="Scegli da Galleria"
+              onclick="document.getElementById('galleryInput').click()"
+            >
+              🖼️
+            </button>
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Scrivi un messaggio..."
+              onkeypress="if(event.key==='Enter') inviaMessaggio()"
+            />
+            <button onclick="inviaMessaggio()">Invia</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
