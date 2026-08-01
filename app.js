@@ -2,15 +2,6 @@ let socket;
 let mioNome = "";
 let stanzaCorrente = "";
 const suonoNotifica = new Audio("/notification.mp3");
-
-// Inizializzazione unica del socket con l'URL del backend Render
-function ottieniSocket() {
-  if (!socket) {
-    socket = io("https://manuchat.onrender.com");
-  }
-  return socket;
-}
-
 function mostraToast(messaggio, tipo = "error") {
   clearTimeout(window.toastTimer);
   clearTimeout(window.toastShowTimer);
@@ -68,7 +59,7 @@ function mostraStanze() {
   document.getElementById("stanze").style.display = "flex";
 
   if (!socket) {
-    socket = io("https://manuchat.onrender.com");
+    socket = io();
 
     socket.on("messageDeleted", (id) => {
       const elemento = document.getElementById("msg-" + id);
@@ -252,7 +243,7 @@ function entraStanza(stanzaPubblica = null, crea = false, password = "") {
   }
 
   if (!socket) {
-    socket = io("https://manuchat.onrender.com");
+    socket = io();
   }
 
   document.getElementById("stanze").style.display = "none";
@@ -481,7 +472,6 @@ function processaEInviaFoto(fileInput) {
   };
   reader.readAsDataURL(file);
 }
-
 function mostraInvito() {
   socket.emit("richiediInvito");
 }
@@ -539,7 +529,6 @@ async function copiaInvito(link) {
 
   mostraToast("✅ Link copiato!", "success");
 }
-
 function controllaInvito() {
   const params = new URLSearchParams(window.location.search);
 
@@ -556,7 +545,7 @@ function controllaInvito() {
   }
 
   if (!socket) {
-    socket = io("https://manuchat.onrender.com");
+    socket = io();
   }
 
   socket.emit("entraConInvito", {
